@@ -1,221 +1,131 @@
 let map;
+const ZOOM_LEVEL = 20;
+const PAN_BY = 0.05;
+const BOTTOM_UI_PADDING = 40;
+const PROFILE_ICON_PADDING = 20;
+const PLACE_NAME_PADDING = 10;
 
-let styleArray = [
-  {
-    "elementType": "geometry.fill",
-    "stylers": [
-      {
-        "color": "#f0f0f0"
-      }
-    ]
-  },
-  {
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#ededed"
-      },
-      {
-        "visibility": "simplified"
-      }
-    ]
-  },
-  {
-    "elementType": "labels.icon",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#523735"
-      }
-    ]
-  },
-  {
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#ffffff"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#c9b2a6"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.land_parcel",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#ae9e90"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.locality",
-    "elementType": "labels.text",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "landscape.man_made",
-    "elementType": "labels.text",
-    "stylers": [
-      {
-        "visibility": "on"
-      }
-    ]
-  },
-  {
-    "featureType": "landscape.natural",
-    "elementType": "geometry.fill",
-    "stylers": [
-      {
-        "color": "#59ff00"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#ffefa9"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#93817c"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "geometry.fill",
-    "stylers": [
-      {
-        "color": "#59ff00"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#345b25"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#ffffff"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#ffffff"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway.controlled_access",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#cccccc"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway.controlled_access",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#e3e3e3"
-      }
-    ]
-  },
-  {
-    "featureType": "road.local",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#806b63"
-      }
-    ]
-  },
-  {
-    "featureType": "transit.line",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#4d4d4d"
-      }
-    ]
-  },
-  {
-    "featureType": "transit.line",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#ffffff"
-      }
-    ]
-  },
-  {
-    "featureType": "water",
-    "elementType": "geometry.fill",
-    "stylers": [
-      {
-        "color": "#00c8ff"
-      }
-    ]
-  },
-  {
-    "featureType": "water",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#ffffff"
-      }
-    ]
-  }
-]
+function getCurrentPosition(callback){
+  let lat = 35.6894;
+  let lng = 139.6917;
+
+  navigator.geolocation.getCurrentPosition(position => {
+    lat = position.coords.latitude;
+    lng = position.coords.longitude;
+    callback({ lat, lng });
+  }, _error => {
+    alert("現在位置を取得できませんでした");
+    callback({ lat, lng });
+  });
+}
 
 async function initMap() {
+
   //@ts-ignore
   const { Map } = await google.maps.importLibrary("maps");
 
-  map = new Map(document.getElementById("map"), {
-    center: { lat: -34.397, lng: 150.644 },
-    zoom: 12,
-    style: styleArray,
-    disableDefaultUI: true,
+  getCurrentPosition(position => {
+
+    const { lat, lng } = position;
+    map = new Map(document.getElementById("map"), {
+      center: { lat: lat, lng: lng },
+      zoom: ZOOM_LEVEL,
+      disableDefaultUI: true,
+      mapId: "909c281cd849660e",
+      minZoom: ZOOM_LEVEL - 4,
+      maxZoom: ZOOM_LEVEL + 2,
+      restriction: {
+        latLngBounds: {
+          north: lat + PAN_BY,
+          south: lat - PAN_BY,
+          east: lng + PAN_BY,
+          west: lng - PAN_BY,
+        },
+      },
+    });
+
+    // マップ下部に表示するUI
+    const BottomUI = document.createElement("div");
+    // プロフィール画面を表示するUI(右上に表示)
+    const ProfileUI = document.createElement("div");
+    // 地名を表示するUI
+    const PlaceNameUI = document.createElement("div");
+
+    // マップ下部に表示するボタン1
+    const BookButton = document.createElement("button");
+    BookButton.textContent = "";
+    BookButton.id = "book-btn";
+    BottomUI.appendChild(BookButton);
+
+    // マップ下部に表示する現在地に移動するボタン
+    const locationButton = document.createElement("button");
+    locationButton.textContent = "";
+    locationButton.id = "location-btn";
+    locationButton.style.margin = "0 20px";
+    BottomUI.appendChild(locationButton);
+
+    // マップ下部に表示するボタン3
+    const CommentButton = document.createElement("button");
+    CommentButton.textContent = "";
+    CommentButton.id = "comment-btn";
+    BottomUI.appendChild(CommentButton);
+
+    // プロフィール画面を表示するボタン
+    const ProfileButton = document.createElement("button");
+    ProfileButton.textContent = "";
+    ProfileButton.id = "profile-btn";
+    ProfileUI.appendChild(ProfileButton);
+
+    // 地名の表示
+    const PlaceName = document.createElement("p");
+    PlaceName.textContent = "鹿児島市";
+    PlaceName.id = "place-name";
+    PlaceNameUI.appendChild(PlaceName);
+
+    // UIの余白の設定
+    BottomUI.style.paddingBottom = BOTTOM_UI_PADDING + "px";
+    ProfileUI.style.paddingRight = PROFILE_ICON_PADDING + "px";
+    ProfileUI.style.paddingTop = PROFILE_ICON_PADDING + "px";
+    PlaceNameUI.style.paddingLeft = PLACE_NAME_PADDING + "px";
+
+    // マップにUIを追加
+    map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(BottomUI);
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(ProfileUI);
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(PlaceNameUI);
+
+    // 現在地に移動するボタンの処理
+    locationButton.addEventListener("click", () => {
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            }
+            map.setCenter(pos);
+          },
+          () => {
+            alert("現在位置を取得できませんでした");
+          }
+        );
+      }else{
+        alert("位置情報はサポートされていません")
+      }
+    });
+
+    // ボタン1の処理
+    BookButton.addEventListener("click", () => {
+      alert("一覧画面を表示します")
+    });
+
+    // ボタン2の処理
+    CommentButton.addEventListener("click", () => {
+      alert("コメント画面を表示します")
+    });
+
+    // プロフィール画面を表示するボタンの処理
+    ProfileButton.addEventListener("click", () => {
+      alert("プロフィール画面を表示します")
+    });
   });
 }
