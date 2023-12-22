@@ -1,9 +1,11 @@
 let map;
 const ZOOM_LEVEL = 20;
-const PAN_BY = 0.05;
 const BOTTOM_UI_PADDING = 40;
 const PROFILE_ICON_PADDING = 20;
-const PLACE_NAME_PADDING = 10;
+const PLACE_NAME_PADDING = 25;
+let profButton;
+let navMenu;
+let overlay;
 
 function getCurrentPosition(callback){
   let lat = 35.6894;
@@ -32,16 +34,6 @@ async function initMap() {
       zoom: ZOOM_LEVEL,
       disableDefaultUI: true,
       mapId: "909c281cd849660e",
-      minZoom: ZOOM_LEVEL - 4,
-      maxZoom: ZOOM_LEVEL + 2,
-      restriction: {
-        latLngBounds: {
-          north: lat + PAN_BY,
-          south: lat - PAN_BY,
-          east: lng + PAN_BY,
-          west: lng - PAN_BY,
-        },
-      },
     });
 
     // マップ下部に表示するUI
@@ -74,6 +66,7 @@ async function initMap() {
     const ProfileButton = document.createElement("button");
     ProfileButton.textContent = "";
     ProfileButton.id = "profile-btn";
+    ProfileButton.classList.add("menu-event");
     ProfileUI.appendChild(ProfileButton);
 
     // 地名の表示
@@ -87,6 +80,7 @@ async function initMap() {
     ProfileUI.style.paddingRight = PROFILE_ICON_PADDING + "px";
     ProfileUI.style.paddingTop = PROFILE_ICON_PADDING + "px";
     PlaceNameUI.style.paddingLeft = PLACE_NAME_PADDING + "px";
+    PlaceNameUI.style.marginTop = "-" + PLACE_NAME_PADDING + "px";
 
     // マップにUIを追加
     map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(BottomUI);
@@ -102,7 +96,7 @@ async function initMap() {
               lat: position.coords.latitude,
               lng: position.coords.longitude,
             }
-            map.setCenter(pos);
+            map.panTo(pos, 2000);
           },
           () => {
             alert("現在位置を取得できませんでした");
@@ -124,8 +118,26 @@ async function initMap() {
     });
 
     // プロフィール画面を表示するボタンの処理
-    ProfileButton.addEventListener("click", () => {
-      alert("プロフィール画面を表示します")
-    });
+    ProfileButton.addEventListener("click", menuToggle);
   });
 }
+
+function menuToggle() {
+  console.log("click")
+  
+  navMenu.classList.toggle('nav-menu-open');
+  overlay.classList.toggle('overlay-on');
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  
+  profButton = document.getElementById('profile-btn');
+  navMenu = document.getElementById('nav-menu');
+  overlay = document.getElementById('overlay');
+
+  const menuEvent = document.getElementsByClassName('menu-event');
+  for(let i = 0; i < menuEvent.length; i++) {
+      menuEvent[i].addEventListener('click', menuToggle, false);
+  }
+
+}, false);

@@ -1,0 +1,83 @@
+
+
+#map {
+    height: 100%;
+}
+#place-name{
+  font-size: 40px;
+  font-weight: bold;
+  text-decoration: underline;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+
+#profile-btn{
+  height:50px;
+  width: 50px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+#location-btn, #book-btn, #comment-btn{
+  height: 50px;
+  width: 50px;
+  background-color: black;
+  border: 1px solid black;
+  border-radius: 10%;
+}
+
+/* 
+  * Optional: Makes the sample page fill the window. 
+  */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* ここから */
+#overlay{
+  position: fixed;
+  top:0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+  opacity: 0;
+  background: rgba(0,0,0,0.6);
+  transition: all 0.5s ease-out;
+}
+#overlay.overlay-on{
+  visibility: visible;
+  opacity: 1;
+}
+
+#nav-menu{
+  position: fixed;
+  z-index: 20;
+  right: -100%;
+  width: 80%;
+  height: 100%;
+  border-left: solid 1px #5e5e5e;
+  background-color: #141414;
+  transition: all 0.5s ease-out;
+}
+
+#nav-menu.nav-menu-open {
+  right: 0;
+}
+
+#nav-menu li{
+  list-style: none;
+}
+#nav-menu li a{
+  display: block;
+  padding: 10px;
+  border-bottom: solid 1px #5e5e5e;
+}
+
+#nav-menu ul{
+  width: 100%;
+  padding-left: 0;
+}
